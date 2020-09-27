@@ -1,2 +1,2 @@
 # sourcerer-router
-Provides a simple and customizable router for PHP applications
+Provides a simple and customizable router for PHP applications.
