@@ -1,0 +1,28 @@
+{
+    "name": "stougeiro/sourcerer-router",
+    "type": "library",
+    "description": "Provides a simple and customizable router for PHP applications.",
+    "keywords": ["php","router","simple","custom"],
+    "homepage": "https://github.com/stougeiro/sourcerer-router",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sidney Tougeiro",
+            "email": "atendimento@sidneytougeiro.com",
+            "homepage": "http://www.sidneytougeiro.com/"
+        }
+    ],
+    "support": {
+        "email": "atendimento@sidneytougeiro.com"
+    },
+    "require": {
+        "php": "^7.1",
+        "stougeiro/sourcerer-contracts": "^1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "7.5.20"
+    },
+    "autoload": {
+        "psr-0": { "": "src/" }
+    }
+}
