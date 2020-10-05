@@ -2,7 +2,7 @@
     "name": "stougeiro/sourcerer-router",
     "type": "library",
     "description": "Provides a simple and customizable router for PHP applications.",
-    "keywords": ["php","router","simple","custom"],
+    "keywords": ["php","router","simple","custom","php","applications"],
     "homepage": "https://github.com/stougeiro/sourcerer-router",
     "license": "MIT",
     "authors": [
