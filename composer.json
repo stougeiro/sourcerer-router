@@ -5,6 +5,7 @@
     "keywords": ["php","router","simple","custom","php","applications"],
     "homepage": "https://github.com/stougeiro/sourcerer-router",
     "license": "MIT",
+    "minimum-stability": "stable",
     "authors": [
         {
             "name": "Sidney Tougeiro",
