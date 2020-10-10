@@ -83,11 +83,10 @@
         }
 
         public static function group(string $_group, callable $_callback) {
-            $_group = '/'. $_group .'/';
-            $_group = self::sanitize($_group);
-
             $temp = self::$_PREFIX;
-            self::$_PREFIX = $_group;
+
+            self::$_PREFIX .= '/'. $_group .'/';
+            self::$_PREFIX = self::sanitize(self::$_PREFIX);
 
             $_callback();
 
