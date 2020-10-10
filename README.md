@@ -123,7 +123,6 @@ If your application lives in a subfolder (e.g. /app) set this basepath in your r
 ## Contributing
 
 Contributions are welcome and will be fully credited.
-
 We accept contributions via Pull Requests.
 
 ### Pull Requests
