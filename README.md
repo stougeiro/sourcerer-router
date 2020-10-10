@@ -99,7 +99,7 @@ If you're using nginx, setup your server section as following:
 
 ### Using a different basepath
 
-If your application lives in a subfolder (e.g. /app) set this basepath in your run method:
+If your application lives in a subfolder (e.g. /app) set the basepath with this method:
 
 ```php
 <?php
