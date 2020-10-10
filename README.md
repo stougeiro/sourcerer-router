@@ -146,4 +146,4 @@ We accept contributions via Pull Requests.
 ## License
 
 This project is licensed under the MIT License.
-See LICENSE for further information (https://github.com/stougeiro/sourcerer-router/blob/master/LICENSE).
+See [LICENSE](https://github.com/stougeiro/sourcerer-router/blob/master/LICENSE) for further information.
