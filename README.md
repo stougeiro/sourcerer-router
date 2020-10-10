@@ -75,7 +75,7 @@ If you're using nginx, setup your server section as following:
         
         Router::add('/', function() {
             http_response_code(200);
-			header('HTTP/1.0 200 OK');
+            header('HTTP/1.0 200 OK');
             header('Content-Type: application/json');
 
             echo json_encode([
