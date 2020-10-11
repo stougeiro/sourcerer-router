@@ -32,7 +32,7 @@ $ composer require stougeiro/sourcerer-router
 
 ### Friendly URL
 
-Create simple .htaccess file on your root sirectory if you're using Apache with mod_rewrite enabled.
+Create simple .htaccess file on your root directory if you're using Apache with mod_rewrite enabled.
 
 ```apache
 <IfModule mod_rewrite.c>
@@ -118,7 +118,7 @@ If your application lives in a subfolder (e.g. `/app`) set the basepath with thi
 
 ### Update or insert a REGEX shortcut for dynamic routing
 
-`Sourcerer\Router` have a predefined regex shortcuts for dynamic routing.
+`Sourcerer\Router` have a predefined REGEX shortcuts for dynamic routing.
 
 ```php
 $_SHORTCUTS = [
@@ -291,6 +291,8 @@ By default, this method receives the URI of the route not found as a parameter.
 
     Router::listen();
 ```
+
+If this method is not defined, it will do nothing.
 
 
 
