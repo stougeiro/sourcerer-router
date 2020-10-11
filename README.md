@@ -1,12 +1,18 @@
 # Sourcerer\Router
 
 Provides a small but simple and customizable routing class for PHP 7.1+ applications.
+It utilizes REGEX and PHP's anonymous functions to create a lightweight and fast routing system.
+The router supports dynamic path parameters and 404 special route.
+The codebase is very small and very easy to understand.
+
+This routing class is performance oriented.
+Therefore, I believe that checking the HTTP verbs is not the responsibility of this routing class.
 
 
 
 ## Features
 
-- Simple routing system.
+- Performance oriented simple routing system.
 - Custom regular expression routing.
 - Dynamic routing using URL segments as parameters.
 
@@ -14,7 +20,7 @@ Provides a small but simple and customizable routing class for PHP 7.1+ applicat
 
 ## Getting started
 
-You need PHP >= 7.1.0 to use _Sourcerer\Router_.
+You need PHP >= 7.1.0 to use `Sourcerer\Router`.
 
 ### Installation
 
@@ -64,32 +70,24 @@ If you're using nginx, setup your server section as following:
 ```php
 <?php
 
+    // Requiring the Composer autoload
     require "./vendor/autoload.php";
 
+    // Using the class
     use Sourcerer\Router;
 
 
+    // Add the first route
     Router::add('/', function() {
         echo "Hello World!";
     });
 
-    Router::group('/api/', function() {
-        
-        Router::add('/', function() {
-            http_response_code(200);
-            header('HTTP/1.1 200 OK');
-            header('Content-Type: application/json');
-
-            echo json_encode([
-                'data' => [
-                    'type' => 'text',
-                    'message' => 'Hello World!'
-                ]
-            ]);
-        });
-
+    // Adding a dynamic route
+    Router::add('/:name', function($name) {
+        echo "Hello ", ucfirst($name), "!";
     });
 
+    // Listening the URI to match routes
     Router::listen();
 ```
 
@@ -99,7 +97,7 @@ If you're using nginx, setup your server section as following:
 
 ### Using a different basepath
 
-If your application lives in a subfolder (e.g. /app) set the basepath with this method:
+If your application lives in a subfolder (e.g. `/app`) set the basepath with this method:
 
 ```php
 <?php
@@ -118,9 +116,9 @@ If your application lives in a subfolder (e.g. /app) set the basepath with this 
     Router::listen();
 ```
 
-### Update or insert a REGEX Shortcut for dynamic routing
+### Update or insert a REGEX shortcut for dynamic routing
 
-_Sourcerer\Router_ have a predefined regex shortcuts for dynamic routing.
+`Sourcerer\Router` have a predefined regex shortcuts for dynamic routing.
 
 ```php
 $_SHORTCUTS = [
@@ -135,7 +133,7 @@ $_SHORTCUTS = [
 ];
 ```
 
-If you need to update any definition or add a new shortcut, use the _upsertShortcut_ method:
+If you need to update any definition or add a new shortcut, use the `upsertShortcut` method:
 
 ```php
 <?php
@@ -146,45 +144,37 @@ If you need to update any definition or add a new shortcut, use the _upsertShort
 
 
     /*
-    ** print_r(Router::getShortcuts());
-    **
-    ** Array
-    ** (
-    **     [:any] => (.*)
-    **     [:id] => ([0-9]+)
-    **     [:name] => ([a-zA-Z]+)
-    **     [:slug] => ([a-z0-9\-]+)
-    **     [:hexa] => ([A-F0-9]+)
-    **     [:year] => ([0-9]{4})
-    **     [:month] => ([0][1-9]|[1][0-2])
-    **     [:day] => ([0][1-9]|[12][0-9]|[3][01])
-    ** )
+    ** Cleaning the SHORTCUTS variable for example purpose.
     */
+    ROUTER::$_SHORTCUTS = [];
 
-    /*
-    ** If the shortcut not exists, the method will insert
-    */
-    Router::upsertShortcut(':binary', '([0-1]+)');
 
     /*
     ** print_r(Router::getShortcuts());
     **
     ** Array
     ** (
-    **     [:any] => (.*)
-    **     [:id] => ([0-9]+)
-    **     [:name] => ([a-zA-Z]+)
-    **     [:slug] => ([a-z0-9\-]+)
-    **     [:hexa] => ([A-F0-9]+)
-    **     [:year] => ([0-9]{4})
-    **     [:month] => ([0][1-9]|[1][0-2])
-    **     [:day] => ([0][1-9]|[12][0-9]|[3][01])
-    **     [:binary] => ([0-1]+)
     ** )
     */
 
     /*
-    ** If the shortcut exists, the method will update
+    ** If the shortcut NOT exists, the method will insert.
+    */
+    Router::upsertShortcut(':any', '(.*)');
+    Router::upsertShortcut(':id', '([0-9]+)');
+
+    /*
+    ** print_r(Router::getShortcuts());
+    **
+    ** Array
+    ** (
+    **     [:any] => (.*)
+    **     [:id] => ([0-9]+)
+    ** )
+    */
+
+    /*
+    ** If the shortcut EXISTS, the method will update.
     */
     Router::upsertShortcut(':id', '([0-9]{2})');
 
@@ -195,21 +185,108 @@ If you need to update any definition or add a new shortcut, use the _upsertShort
     ** (
     **     [:any] => (.*)
     **     [:id] => ([0-9]{2})
-    **     [:name] => ([a-zA-Z]+)
-    **     [:slug] => ([a-z0-9\-]+)
-    **     [:hexa] => ([A-F0-9]+)
-    **     [:year] => ([0-9]{4})
-    **     [:month] => ([0][1-9]|[1][0-2])
-    **     [:day] => ([0][1-9]|[12][0-9]|[3][01])
-    **     [:binary] => ([0-1]+)
     ** )
     */
 
 
     Router::setBase('/');
 
+    Router::add('/users', function() {
+        echo "/users";
+    });
+
     Router::add('/user/:id', function($id) {
+        echo "/user/id", "<br />";
         echo "id: ", $id;
+    });
+
+    Router::listen();
+```
+
+### Adding dynamic routes
+
+```php
+```
+
+### Adding grouped routes
+
+```php
+<?php
+
+    require "./vendor/autoload.php";
+
+    use Sourcerer\Router;
+
+
+    Router::add('/', function() {
+        echo "Hello World!";
+    });
+
+    // Defining the grouped route
+    Router::group('/api', function() {
+
+        // This method accepts recursive use
+        Router::group('/v1', function() {
+
+            Router::add('/', function() {
+                http_response_code(200);
+                header('HTTP/1.1 200 OK');
+                header('Content-Type: application/json');
+
+                echo json_encode([
+                    'data' => [
+                        'type' => 'text',
+                        'message' => 'Hello APIv1!'
+                    ]
+                ]);
+            });
+
+        });
+
+    });
+```
+
+### Defining the 404 special route
+
+The `listen()` method will match the URI and return the defined route.  
+If not, it will execute the `pageNotFound()` method.
+
+```php
+<?php
+
+    require "./vendor/autoload.php";
+
+    use Sourcerer\Router;
+
+
+    Router::add('/', function() {
+        echo "Hello World!";
+    });
+
+    Router::pageNotFound( function() {
+        echo "Error 404: Page not found!";
+    });
+
+    Router::listen();
+```
+
+By default, this method receives the URI of the route not found as a parameter.
+
+```php
+<?php
+
+    require "./vendor/autoload.php";
+
+    use Sourcerer\Router;
+
+
+    Router::add('/', function() {
+        echo "Hello World!";
+    });
+
+    Router::pageNotFound( function($uri) {
+        echo "Error 404: Page not found!";
+        echo "(", $uri, ")";
     });
 
     Router::listen();
@@ -221,6 +298,7 @@ If you need to update any definition or add a new shortcut, use the _upsertShort
 
 - Don't forget to set the correct basepath in the application and in your .htaccess file.
 - Make sure the mod_rewrite is enable in your APACHE settings.
+- Define 404 special route.
 
 
 
