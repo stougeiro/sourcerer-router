@@ -59,7 +59,7 @@ Create simple .htaccess file on your root directory if you're using Apache with 
 </IfModule>
 ```
 
-If you're using nginx, setup your server section as following:
+If you're using NGINX, setup your server section as following:
 
 ```nginx
 
