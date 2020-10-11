@@ -77,7 +77,7 @@ If you're using nginx, setup your server section as following:
         
         Router::add('/', function() {
             http_response_code(200);
-            header('HTTP/1.0 200 OK');
+            header('HTTP/1.1 200 OK');
             header('Content-Type: application/json');
 
             echo json_encode([
@@ -120,9 +120,16 @@ If your application lives in a subfolder (e.g. /app) set the basepath with this 
 
 
 
+## Something does not work?
+
+- Don't forget to set the correct basepath in the application and in your .htaccess file.
+- Make sure the mod_rewrite is enable in your APACHE settings.
+
+
+
 ## Contributing
 
-Contributions are welcome and will be fully credited.
+Contributions are **welcome** and will be fully credited.  
 We accept contributions via Pull Requests.
 
 ### Pull Requests
@@ -145,5 +152,5 @@ We accept contributions via Pull Requests.
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License.  
 See [LICENSE](https://github.com/stougeiro/sourcerer-router/blob/master/LICENSE) for further information.
