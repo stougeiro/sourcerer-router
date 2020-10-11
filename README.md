@@ -35,34 +35,30 @@ $ composer require stougeiro/sourcerer-router
 Create simple .htaccess file on your root directory if you're using Apache with mod_rewrite enabled.
 
 ```apache
-<IfModule mod_rewrite.c>
+Options -Indexes
 
-    RewriteEngine On
+ErrorDocument 403 /
 
-    ## White listed folders
-    #
-    RewriteCond %{REQUEST_FILENAME} -f
-    RewriteCond %{REQUEST_FILENAME} !/.public/*
-    RewriteRule !^index.php index.php [L,NC]
+RewriteEngine On
 
-    ## Block all PHP files, except index
-    #
-    RewriteCond %{REQUEST_FILENAME} -f
-    RewriteCond %{REQUEST_FILENAME} \.php$
-    RewriteRule !^index.php index.php [L,NC]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
 
-    ## Standard routes
-    #
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ index.php [L]
-
-</IfModule>
+RewriteRule ^(.*)$ index.php [L]
 ```
 
 If you're using NGINX, setup your server section as following:
 
 ```nginx
+autoindex off;
 
+error_page 403 /;
+
+location / {
+    if (!-e $request_filename){
+        rewrite ^(.*)$ /index.php break;
+    }
+}
 ```
 
 ### Usage
