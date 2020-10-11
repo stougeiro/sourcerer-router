@@ -123,16 +123,16 @@ If your application lives in a subfolder (e.g. /app) set the basepath with this 
 _Sourcerer\Router_ have a predefined regex shortcuts for dynamic routing.
 
 ```php
-    $_SHORTCUTS = [
-        ':any'   => '(.*)',
-        ':id'    => '([0-9]+)',
-        ':name'  => '([a-zA-Z]+)',
-        ':slug'  => '([a-z0-9\-]+)',
-        ':hexa'  => '([A-F0-9]+)',
-        ':year'  => '([0-9]{4})',
-        ':month' => '([0][1-9]|[1][0-2])',
-        ':day'   => '([0][1-9]|[12][0-9]|[3][01])'
-    ];
+$_SHORTCUTS = [
+    ':any'   => '(.*)',
+    ':id'    => '([0-9]+)',
+    ':name'  => '([a-zA-Z]+)',
+    ':slug'  => '([a-z0-9\-]+)',
+    ':hexa'  => '([A-F0-9]+)',
+    ':year'  => '([0-9]{4})',
+    ':month' => '([0][1-9]|[1][0-2])',
+    ':day'   => '([0][1-9]|[12][0-9]|[3][01])'
+];
 ```
 
 If you need to update any definition or add a new shortcut, use the _upsertShortcut_ method:
@@ -184,7 +184,7 @@ If you need to update any definition or add a new shortcut, use the _upsertShort
     */
 
     /*
-    ** If the shortcut not exists, the method will update
+    ** If the shortcut exists, the method will update
     */
     Router::upsertShortcut(':id', '([0-9]{2})');
 
