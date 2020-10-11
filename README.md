@@ -206,6 +206,23 @@ If you need to update any definition or add a new shortcut, use the `upsertShort
 ### Adding dynamic routes
 
 ```php
+<?php
+
+    require "./vendor/autoload.php";
+
+    use Sourcerer\Router;
+
+
+    Router::add('/:name', function($name) {
+        echo "Hello ", $name, "!";
+    });
+
+    Router::add('/blog/:year/:month/:slug', function($year, $month, $slug) {
+        echo "Blog Post (", $year, "/", $month, ") <br />";
+        echo "<h1>", ucfirst(str_replace('-', ' ', $slug)), "</h1>";
+    });
+
+    Router::listen();
 ```
 
 ### Adding grouped routes
@@ -243,7 +260,13 @@ If you need to update any definition or add a new shortcut, use the `upsertShort
 
         });
 
+        Router::group('/v2', function() {
+            // Under development
+        });
+
     });
+
+    Router::listen();
 ```
 
 ### Defining the 404 special route
@@ -317,7 +340,7 @@ We accept contributions via Pull Requests.
 
 ### Contributors
 
-- S. Tougeiro ([stougeiro](https://github.com/stougeiro))
+- Sidney Tougeiro ([stougeiro](https://github.com/stougeiro))
 
 
 
