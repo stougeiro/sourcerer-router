@@ -317,7 +317,7 @@ We accept contributions via Pull Requests.
 
 ### Contributors
 
-- [Sidney Tougeiro](https://github.com/stougeiro)
+- S. Tougeiro ([stougeiro](https://github.com/stougeiro))
 
 
 
