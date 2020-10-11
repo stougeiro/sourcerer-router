@@ -14,7 +14,7 @@ Provides a small but simple and customizable routing class for PHP 7.1+ applicat
 
 ## Getting started
 
-You need PHP >= 7.1.0 to use Sourcerer\Router.
+You need PHP >= 7.1.0 to use _Sourcerer\Router_.
 
 ### Installation
 
@@ -113,6 +113,103 @@ If your application lives in a subfolder (e.g. /app) set the basepath with this 
 
     Router::add('/', function() {
         echo "/app/";
+    });
+
+    Router::listen();
+```
+
+### Update or insert a REGEX Shortcut for dynamic routing
+
+_Sourcerer\Router_ have a predefined regex shortcuts for dynamic routing.
+
+```php
+    $_SHORTCUTS = [
+        ':any'   => '(.*)',
+        ':id'    => '([0-9]+)',
+        ':name'  => '([a-zA-Z]+)',
+        ':slug'  => '([a-z0-9\-]+)',
+        ':hexa'  => '([A-F0-9]+)',
+        ':year'  => '([0-9]{4})',
+        ':month' => '([0][1-9]|[1][0-2])',
+        ':day'   => '([0][1-9]|[12][0-9]|[3][01])'
+    ];
+```
+
+If you need to update any definition or add a new shortcut, use the _upsertShortcut_ method:
+
+```php
+<?php
+
+    require "./vendor/autoload.php";
+
+    use Sourcerer\Router;
+
+
+    /*
+    ** print_r(Router::getShortcuts());
+    **
+    ** Array
+    ** (
+    **     [:any] => (.*)
+    **     [:id] => ([0-9]+)
+    **     [:name] => ([a-zA-Z]+)
+    **     [:slug] => ([a-z0-9\-]+)
+    **     [:hexa] => ([A-F0-9]+)
+    **     [:year] => ([0-9]{4})
+    **     [:month] => ([0][1-9]|[1][0-2])
+    **     [:day] => ([0][1-9]|[12][0-9]|[3][01])
+    ** )
+    */
+
+    /*
+    ** If the shortcut not exists, the method will insert
+    */
+    Router::upsertShortcut(':binary', '([0-1]+)');
+
+    /*
+    ** print_r(Router::getShortcuts());
+    **
+    ** Array
+    ** (
+    **     [:any] => (.*)
+    **     [:id] => ([0-9]+)
+    **     [:name] => ([a-zA-Z]+)
+    **     [:slug] => ([a-z0-9\-]+)
+    **     [:hexa] => ([A-F0-9]+)
+    **     [:year] => ([0-9]{4})
+    **     [:month] => ([0][1-9]|[1][0-2])
+    **     [:day] => ([0][1-9]|[12][0-9]|[3][01])
+    **     [:binary] => ([0-1]+)
+    ** )
+    */
+
+    /*
+    ** If the shortcut not exists, the method will update
+    */
+    Router::upsertShortcut(':id', '([0-9]{2})');
+
+    /*
+    ** print_r(Router::getShortcuts());
+    **
+    ** Array
+    ** (
+    **     [:any] => (.*)
+    **     [:id] => ([0-9]{2})
+    **     [:name] => ([a-zA-Z]+)
+    **     [:slug] => ([a-z0-9\-]+)
+    **     [:hexa] => ([A-F0-9]+)
+    **     [:year] => ([0-9]{4})
+    **     [:month] => ([0][1-9]|[1][0-2])
+    **     [:day] => ([0][1-9]|[12][0-9]|[3][01])
+    **     [:binary] => ([0-1]+)
+    ** )
+    */
+
+
+    Router::setBase('/');
+
+    Router::add('/user/:id', function($id) {
+        echo "id: ", $id;
     });
 
     Router::listen();
