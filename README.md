@@ -203,7 +203,7 @@ If you need to update any definition or add a new shortcut, use the `upsertShort
     Router::listen();
 ```
 
-### Adding dynamic routes
+### Using dynamic routes
 
 ```php
 <?php
@@ -225,7 +225,7 @@ If you need to update any definition or add a new shortcut, use the `upsertShort
     Router::listen();
 ```
 
-### Adding grouped routes
+### Using grouped routes
 
 ```php
 <?php
