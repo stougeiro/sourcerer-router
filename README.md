@@ -8,6 +8,15 @@ The codebase is very small and very easy to understand.
 This routing class is performance oriented.
 Therefore, I believe that checking the HTTP verbs is not the responsibility of this routing class.
 
+### Package dependencies
+
+```
+"require": {
+    "php": "^7.1",
+    "stougeiro/sourcerer-contracts": "^1.0"
+}
+```
+
 
 
 ## Features
