@@ -3,90 +3,114 @@
     use PHPUnit\Framework\TestCase;
     use Sourcerer\Router;
 
+
     final class RouterTest extends TestCase
     {
-        public function test_BASE_IsStringAndBeginsRoot(): void {
-            $this->assertIsString(Router::$_BASE);
+        public function testGetBase(): void
+        {
+            $this->assertIsString(Router::getBase());
+
             $this->assertEquals(
                 '/',
-                Router::$_BASE
-            );
-        }
-
-        public function test_ROUTES_IsArrayAndBeginsEmpty(): void {
-            $this->assertIsArray(Router::$_ROUTES);
-            $this->assertEmpty(Router::$_ROUTES);
-        }
-
-        public function test_SHORTCUTS_IsArrayAndBeginsNotEmpty(): void {
-            $this->assertIsArray(Router::$_SHORTCUTS);
-            $this->assertCount(
-                8,
-                Router::$_SHORTCUTS
-            );
-        }
-
-
-        public function testGetBase(): void {
-            $this->assertEquals(
-                Router::$_BASE,
                 Router::getBase()
             );
         }
 
-        public function testSetBase(): void {
+        public function testSetBase(): void
+        {
             Router::setBase('');
+
             $this->assertEquals(
                 '/',
                 Router::getBase()
             );
 
             Router::setBase('/ /   /');
+
             $this->assertEquals(
                 '/',
                 Router::getBase()
             );
 
             Router::setBase('api');
+
             $this->assertEquals(
                 '/api/',
                 Router::getBase()
             );
 
             Router::setBase('////user//');
+
             $this->assertEquals(
                 '/user/',
                 Router::getBase()
             );
         }
 
-        public function testGetShortcuts(): void {
+        public function testGetShortcut(): void
+        {
             $this->assertEquals(
-                Router::$_SHORTCUTS,
+                '(.*)',
+                Router::getShortcut('any')
+            );
+
+            $this->assertEquals(
+                '([A-F0-9]+)',
+                Router::getShortcut('hexa')
+            );
+
+            $this->assertEquals(
+                '',
+                Router::getShortcut('hour')
+            );
+        }
+
+        public function testGetShortcuts(): void
+        {
+            $this->assertEquals(
+                [
+                    ':any'   => '(.*)',
+                    ':id'    => '([0-9]+)',
+                    ':name'  => '([a-zA-Z]+)',
+                    ':slug'  => '([a-z0-9\-]+)',
+                    ':hexa'  => '([A-F0-9]+)',
+                    ':year'  => '([0-9]{4})',
+                    ':month' => '([0][1-9]|[1][0-2])',
+                    ':day'   => '([0][1-9]|[12][0-9]|[3][01])'
+                ],
                 Router::getShortcuts()
             );
         }
 
-        public function testUpsertShortcuts(): void {
-            $count = count(Router::$_SHORTCUTS);
+        public function testUpsertShortcuts(): void
+        {
+            $count = count(Router::getShortcuts());
+
+            $this->assertCount(
+                $count,
+                Router::getShortcuts()
+            );
 
             $shortcut = ':hour';
             $regex = '([012][0-9])';
 
             Router::upsertShortcut($shortcut, $regex);
+
             $count++;
 
             $this->assertCount(
                 $count,
-                Router::$_SHORTCUTS
+                Router::getShortcuts()
             );
+
             $this->assertArrayHasKey(
                 $shortcut,
-                Router::$_SHORTCUTS
+                Router::getShortcuts()
             );
+
             $this->assertEquals(
-                Router::$_SHORTCUTS[$shortcut],
-                $regex
+                $regex,
+                Router::getShortcut($shortcut)
             );
 
             /*
@@ -95,248 +119,296 @@
             */
 
             $regex = '([0-9]|[1][0-9]|[2][0-3])';
+
             Router::upsertShortcut($shortcut, $regex);
 
             $this->assertCount(
                 $count,
-                Router::$_SHORTCUTS
+                Router::getShortcuts()
             );
+
             $this->assertArrayHasKey(
                 $shortcut,
-                Router::$_SHORTCUTS
+                Router::getShortcuts()
             );
+
             $this->assertEquals(
-                Router::$_SHORTCUTS[$shortcut],
-                $regex
+                $regex,
+                Router::getShortcut($shortcut)
             );
         }
 
-        public function testGetURI(): void {
+        public function testClearShortcuts(): void
+        {
+            Router::clearShortcuts();
+
+            $count = count(Router::getShortcuts());
+
+            $this->assertEquals(
+                $count,
+                0
+            );
+
+            $this->assertCount(
+                $count,
+                Router::getShortcuts()
+            );
+        }
+
+        public function testGetURI(): void
+        {
             $_SERVER['REQUEST_URI'] = 'http://www.example.com/user/15/?groupBy=test#title';
+
             $this->assertEquals(
                 '/user/15/',
                 Router::getURI()
             );
 
             $_SERVER['REQUEST_URI'] = 'http://www.example.com/user?groupBy=test';
+
             $this->assertEquals(
                 '/user/',
                 Router::getURI()
             );
 
-            $_SERVER['REQUEST_URI'] = 'http://www.example.com//wrong/uri';
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/';
+
+            $this->assertEquals(
+                '/',
+                Router::getURI()
+            );
+
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com//';
+
+            $this->assertEquals(
+                '//',
+                Router::getURI()
+            );
+
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com//wrong/uri/';
+
             $this->assertEquals(
                 '//wrong/uri/',
                 Router::getURI()
             );
 
             $_SERVER['REQUEST_URI'] = 'http://www.example.com//wrong/uri2/';
+
             $this->assertEquals(
                 '//wrong/uri2/',
                 Router::getURI()
             );
 
             $_SERVER['REQUEST_URI'] = 'http://www.example.com/wrong//uri3/';
+
             $this->assertEquals(
                 '/wrong//uri3/',
                 Router::getURI()
             );
 
             $_SERVER['REQUEST_URI'] = 'http://www.example.com/wrong/uri4//';
+
             $this->assertEquals(
                 '/wrong/uri4//',
                 Router::getURI()
             );
         }
 
-        public function testAddRoute(): void {
-            // Cleaning the routes purposely
-            Router::$_ROUTES = [];
-
-            $count = count(Router::$_ROUTES);
-
-
+        public function testAddRoute(): void
+        {
             Router::setBase('/');
 
-            // Adding route
-            Router::add('/test', function() {
-                // echo "test";
+            Router::add('/tar/', function() {
+                // echo "/tar/";
             });
 
-            // 1 route added
-            $count += 1;
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/tar/';
+            $match = Router::listen();
 
-            $regex_route = '/^\/test\/$/';
-
-            $this->assertCount(
-                $count,
-                Router::$_ROUTES
-            );
-            $this->assertArrayHasKey(
-                $regex_route,
-                Router::$_ROUTES
-            );
-            $this->assertIsObject(Router::$_ROUTES[$regex_route]);
-            $this->assertIsCallable(Router::$_ROUTES[$regex_route]);
-
-            /*
-            ** If try to add the same route, will be ignored.
-            */
-
-            Router::add('/test', function() {
-                // echo "test";
-            });
-
-            $this->assertCount(
-                $count,
-                Router::$_ROUTES
-            );
+            $this->assertTrue($match);
         }
 
-        public function testGroup(): void {
-            // Cleaning the routes purposely
-            Router::$_ROUTES = [];
+        public function testAddRouteWithBase(): void
+        {
+            Router::setBase('/wb/');
 
-            $count = count(Router::$_ROUTES);
+            Router::add('/tar/', function() {
+                // echo "/wb/tar/";
+            });
 
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/wb/tar/';
+            $match = Router::listen();
 
+            $this->assertTrue($match);
+
+        }
+
+        public function testGroup(): void
+        {
             Router::setBase('/');
 
-            // Adding routes
-            Router::group('/api/', function() {
+            Router::group('/tg/', function() {
 
                 Router::add('/', function() {
-                    // echo "/api/";
+                    // echo "/tg/";
                 });
 
                 Router::add('/test/', function() {
-                    // echo "/api/test/";
+                    // echo "/tg/test/";
                 });
 
             });
 
-            // 2 routes added
-            $count += 2;
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/tg/';
+            $match = Router::listen();
 
-            $regex_route = [];
-            $regex_route[] = '/^\/api\/$/';
-            $regex_route[] = '/^\/api\/test\/$/';
+            $this->assertTrue($match);
 
-            $this->assertCount(
-                $count,
-                Router::$_ROUTES
-            );
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/tg/test/';
+            $match = Router::listen();
 
-            foreach ($regex_route as $route) {
-                $this->assertArrayHasKey(
-                    $route,
-                    Router::$_ROUTES
-                );
-                $this->assertIsObject(Router::$_ROUTES[$route]);
-                $this->assertIsCallable(Router::$_ROUTES[$route]);
-
-                // Deleting the verified route
-                unset(Router::$_ROUTES[$route]);
-            }
-
-            // Verifying if there are no added extra routes
-            $this->assertCount(
-                0,
-                Router::$_ROUTES
-            );
+            $this->assertTrue($match);
         }
 
-        public function testRecursiveGroup(): void {
-            // Cleaning the routes purposely
-            Router::$_ROUTES = [];
+        public function testGroupWithBase(): void
+        {
+            Router::setBase('/wb/');
 
-            $count = count(Router::$_ROUTES);
-
-
-            Router::setBase('/');
-
-            // Adding routes out of order purposely
-            Router::add('/', function() {
-                // echo "/";
-            });
-
-            Router::group('/api/', function() {
+            Router::group('/tg/', function() {
 
                 Router::add('/', function() {
-                    // echo "/api/";
+                    // echo "/wb/tg/";
+                });
+
+                Router::add('/test/', function() {
+                    // echo "/wb/tg/test/";
+                });
+
+            });
+
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/wb/tg/';
+            $match = Router::listen();
+
+            $this->assertTrue($match);
+
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/wb/tg/test/';
+            $match = Router::listen();
+
+            $this->assertTrue($match);
+        }
+
+        public function testRecursiveGroup(): void
+        {
+            Router::setBase('/');
+
+            Router::group('/trg/', function() {
+
+                Router::add('/', function() {
+                    // echo "/trg/";
                 });
 
                 Router::group('/admin/', function() {
 
                     Router::add('/', function() {
-                        // echo "/api/admin/";
+                        // echo "/trg/admin/";
                     });
 
                     Router::add('/test/', function() {
-                        // echo "/api/admin/test/";
+                        // echo "/trg/admin/test/";
                     });
 
                 });
 
                 Router::add('/test/', function() {
-                    // echo "/api/test/";
+                    // echo "/trg/test/";
                 });
 
             });
 
-            Router::add('/test/', function() {
-                // echo "/test/";
-            });
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/trg/';
+            $match = Router::listen();
 
-            // 6 routes added
-            $count += 6;
+            $this->assertTrue($match);
 
-            $regex_route = [];
-            $regex_route[] = '/^\/$/';
-            $regex_route[] = '/^\/api\/$/';
-            $regex_route[] = '/^\/api\/admin\/$/';
-            $regex_route[] = '/^\/api\/admin\/test\/$/';
-            $regex_route[] = '/^\/api\/test\/$/';
-            $regex_route[] = '/^\/test\/$/';
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/trg/admin/';
+            $match = Router::listen();
 
-            $this->assertCount(
-                $count,
-                Router::$_ROUTES
-            );
+            $this->assertTrue($match);
 
-            foreach ($regex_route as $route) {
-                $this->assertArrayHasKey(
-                    $route,
-                    Router::$_ROUTES
-                );
-                $this->assertIsObject(Router::$_ROUTES[$route]);
-                $this->assertIsCallable(Router::$_ROUTES[$route]);
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/trg/admin/test/';
+            $match = Router::listen();
 
-                // Deleting the verified route
-                unset(Router::$_ROUTES[$route]);
-            }
+            $this->assertTrue($match);
 
-            // Verifying if there are no added extra routes
-            $this->assertCount(
-                0,
-                Router::$_ROUTES
-            );
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/trg/test/';
+            $match = Router::listen();
+
+            $this->assertTrue($match);
         }
 
-        public function testDynamicRoutes(): void {
-            // Cleaning the routes purposely
-            Router::$_ROUTES = [];
+        public function testRecursiveGroupWithBase(): void
+        {
+            Router::setBase('/wb/');
 
-            $count = count(Router::$_ROUTES);
+            Router::group('/trg/', function() {
 
+                Router::add('/', function() {
+                    // echo "/wb/trg/";
+                });
 
-            Router::setBase('/');
+                Router::group('/admin/', function() {
 
-            Router::add('/:name', function($name) {
-                // echo "The name is ", $name;
+                    Router::add('/', function() {
+                        // echo "/wb/trg/admin/";
+                    });
+
+                    Router::add('/test/', function() {
+                        // echo "/wb/trg/admin/test/";
+                    });
+
+                });
+
+                Router::add('/test/', function() {
+                    // echo "/wb/trg/test/";
+                });
+
             });
 
-            Router::group('/api/', function() {
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/trg/';
+            $match = Router::listen();
+
+            $this->assertTrue($match);
+
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/trg/admin/';
+            $match = Router::listen();
+
+            $this->assertTrue($match);
+
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/trg/admin/test/';
+            $match = Router::listen();
+
+            $this->assertTrue($match);
+
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/trg/test/';
+            $match = Router::listen();
+
+            $this->assertTrue($match);
+        }
+
+        public function testDynamicRoutes(): void
+        {
+            Router::setBase('/');
+
+            Router::upsertShortcut(':name', '([a-zA-Z]+)');
+            Router::upsertShortcut(':year', '([0-9]{4})');
+            Router::upsertShortcut(':month', '([0][1-9]|[1][0-2])');
+            Router::upsertShortcut(':slug', '([a-z0-9\-]+)');
+
+            Router::add('/:year', function($year) {
+                // echo "The year is ", $year;
+            });
+
+            Router::group('/tdr/', function() {
 
                 Router::add('/:name', function($name) {
                     // echo "The API name is ", $name;
@@ -348,43 +420,70 @@
                 // echo $year, "/", $month, ": ", $slug;
             });
 
-            // 3 routes added
-            $count += 3;
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/2020/';
+            $match = Router::listen();
 
-            $regex_route = [];
-            $regex_route[] = '/^\/([a-zA-Z]+)\/$/';
-            $regex_route[] = '/^\/api\/([a-zA-Z]+)\/$/';
-            $regex_route[] = '/^\/blog\/([0-9]{4})\/([0][1-9]|[1][0-2])\/([a-z0-9\-]+)\/$/';
+            $this->assertTrue($match);
 
-            $this->assertCount(
-                $count,
-                Router::$_ROUTES
-            );
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/tdr/sourcerer/';
+            $match = Router::listen();
 
-            foreach ($regex_route as $route) {
-                $this->assertArrayHasKey(
-                    $route,
-                    Router::$_ROUTES
-                );
-                $this->assertIsObject(Router::$_ROUTES[$route]);
-                $this->assertIsCallable(Router::$_ROUTES[$route]);
+            $this->assertTrue($match);
 
-                // Deleting the verified route
-                unset(Router::$_ROUTES[$route]);
-            }
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/blog/2020/10/just-a-little-test-in-2020-10';
+            $match = Router::listen();
 
-            // Verifying if there are no added extra routes
-            $this->assertCount(
-                0,
-                Router::$_ROUTES
-            );
+            $this->assertTrue($match);
         }
 
-        public function testListen(): void {
-            // Cleaning the routes purposely
-            Router::$_ROUTES = [];
+        public function testDynamicRoutesWithBase(): void
+        {
+            Router::setBase('/wb/');
 
-            Router::setBase('/');
+            Router::upsertShortcut(':name', '([a-zA-Z]+)');
+            Router::upsertShortcut(':year', '([0-9]{4})');
+            Router::upsertShortcut(':month', '([0][1-9]|[1][0-2])');
+            Router::upsertShortcut(':slug', '([a-z0-9\-]+)');
+
+            Router::add('/:year', function($year) {
+                // echo "The year is ", $year;
+            });
+
+            Router::group('/tdr/', function() {
+
+                Router::add('/:name', function($name) {
+                    // echo "The API name is ", $name;
+                });
+
+            });
+
+            Router::add('/blog/:year/:month/:slug', function($year, $month, $slug) {
+                // echo $year, "/", $month, ": ", $slug;
+            });
+
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/wb/2020/';
+            $match = Router::listen();
+
+            $this->assertTrue($match);
+
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/wb/tdr/sourcerer/';
+            $match = Router::listen();
+
+            $this->assertTrue($match);
+
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/wb/blog/2020/10/just-a-little-test-in-2020-10';
+            $match = Router::listen();
+
+            $this->assertTrue($match);
+        }
+
+        public function testListen(): void
+        {
+            Router::setBase('/app/');
+
+            Router::add('/', function() {
+                // echo "/";
+            });
 
             Router::add('/test', function() {
                 // echo "/test/";
@@ -402,8 +501,8 @@
 
             });
 
-            Router::add('/:name', function($name) {
-                // echo "The name is ", $name;
+            Router::add('/user/:name', function($name) {
+                // echo "/user/", $name;
 
                 $this->assertEquals(
                     'stougeiro',
@@ -412,20 +511,26 @@
             });
 
             Router::add('/blog/:year/:month/:slug', function($year, $month, $slug) {
-                // echo $year, "/", $month, ": ", $slug;
+                // echo $year, "/", $month, "/", $slug;
 
                 $this->assertEquals(
-                    '2020',
-                    $year
-                );
-
-                $this->assertEquals(
-                    '05',
-                    $month
+                    $year,
+                    '2020'
                 );
 
                 $this->assertContains(
-                    $slug, [
+                    $month,
+                    [
+                        '05',
+                        '07',
+                        '09',
+                        '11',
+                    ]
+                );
+
+                $this->assertContains(
+                    $slug,
+                    [
                         'just-a-simple-test',
                         '4-reasons-for-meaning',
                         'reasons4meaning',
@@ -435,40 +540,49 @@
             });
 
 
-            $_SERVER['REQUEST_URI'] = 'http://www.example.com/test';
-            $this->assertTrue(Router::listen());
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/app/';
+            $match = Router::listen();
 
-            $_SERVER['REQUEST_URI'] = 'http://www.example.com/api';
-            $this->assertTrue(Router::listen());
+            $this->assertTrue($match);
 
-            $_SERVER['REQUEST_URI'] = 'http://www.example.com/api/test';
-            $this->assertTrue(Router::listen());
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/app/test/';
+            $match = Router::listen();
 
-            $_SERVER['REQUEST_URI'] = 'http://www.example.com/api/users';
-            $this->assertFalse(Router::listen());
+            $this->assertTrue($match);
 
-            $_SERVER['REQUEST_URI'] = 'http://www.example.com/stougeiro';
-            $this->assertTrue(Router::listen());
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/app/api/';
+            $match = Router::listen();
 
-            $_SERVER['REQUEST_URI'] = 'http://www.example.com/st07g31r0';
-            $this->assertFalse(Router::listen());
+            $this->assertTrue($match);
+
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/app/api/test';
+            $match = Router::listen();
+
+            $this->assertTrue($match);
+
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/app/user/stougeiro/';
+            $match = Router::listen();
+
+            $this->assertTrue($match);
 
             $_SERVER['REQUEST_URI'] = 'http://www.example.com/blog/2020/05/just-a-simple-test';
-            $this->assertTrue(Router::listen());
+            $match = Router::listen();
 
-            $_SERVER['REQUEST_URI'] = 'http://www.example.com/blog/2020/00/just-a-simple-test';
-            $this->assertFalse(Router::listen());
+            $this->assertTrue($match);
 
-            $_SERVER['REQUEST_URI'] = 'http://www.example.com/blog/2020/13/just-a-simple-test';
-            $this->assertFalse(Router::listen());
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/blog/2020/07/4-reasons-for-meaning';
+            $match = Router::listen();
 
-            $_SERVER['REQUEST_URI'] = 'http://www.example.com/blog/2020/05/4-reasons-for-meaning';
-            $this->assertTrue(Router::listen());
+            $this->assertTrue($match);
 
-            $_SERVER['REQUEST_URI'] = 'http://www.example.com/blog/2020/05/reasons4meaning';
-            $this->assertTrue(Router::listen());
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/blog/2020/09/reasons4meaning';
+            $match = Router::listen();
 
-            $_SERVER['REQUEST_URI'] = 'http://www.example.com/blog/2020/05/simpletext';
-            $this->assertTrue(Router::listen());
+            $this->assertTrue($match);
+
+            $_SERVER['REQUEST_URI'] = 'http://www.example.com/blog/2020/11/simpletext';
+            $match = Router::listen();
+
+            $this->assertTrue($match);
         }
     }
