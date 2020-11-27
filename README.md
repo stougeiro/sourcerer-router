@@ -129,17 +129,17 @@ If your application lives in a subfolder (e.g. `/app`) set the basepath with thi
 `Sourcerer\Router` have a predefined REGEX shortcuts for dynamic routing.
 
 ```php
-    Array
-    (
-        [:any] => (.*)
-        [:id] => ([0-9]+)
-        [:name] => ([a-zA-Z]+)
-        [:slug] => ([a-z0-9\-]+)
-        [:hexa] => ([A-F0-9]+)
-        [:year] => ([0-9]{4})
-        [:month] => ([0][1-9]|[1][0-2])
-        [:day] => ([0][1-9]|[12][0-9]|[3][01])
-    )
+Array
+(
+    [:any] => (.*)
+    [:id] => ([0-9]+)
+    [:name] => ([a-zA-Z]+)
+    [:slug] => ([a-z0-9\-]+)
+    [:hexa] => ([A-F0-9]+)
+    [:year] => ([0-9]{4})
+    [:month] => ([0][1-9]|[1][0-2])
+    [:day] => ([0][1-9]|[12][0-9]|[3][01])
+)
 ```
 
 If you need to update any definition or add a new shortcut, use the `upsertShortcut` method:
