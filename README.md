@@ -302,7 +302,7 @@ If not, it will execute the `pageNotFound()` method.
     Router::listen();
 ```
 
-By default, this method receives the URI of the route not found as a parameter.
+By default, this method makes the URI of the route not found available as a parameter.
 
 ```php
 <?php
