@@ -8,6 +8,8 @@ The codebase is very small and very easy to understand.
 This routing class is performance oriented.
 Therefore, I believe that checking the HTTP verbs is not the responsibility of this routing class.
 
+
+
 ### Package dependencies
 
 ```
@@ -24,6 +26,7 @@ Therefore, I believe that checking the HTTP verbs is not the responsibility of t
 - Performance oriented simple routing system.
 - Custom regular expression routing.
 - Dynamic routing using URL segments as parameters.
+
 
 
 
@@ -126,16 +129,17 @@ If your application lives in a subfolder (e.g. `/app`) set the basepath with thi
 `Sourcerer\Router` have a predefined REGEX shortcuts for dynamic routing.
 
 ```php
-$_SHORTCUTS = [
-    ':any'   => '(.*)',
-    ':id'    => '([0-9]+)',
-    ':name'  => '([a-zA-Z]+)',
-    ':slug'  => '([a-z0-9\-]+)',
-    ':hexa'  => '([A-F0-9]+)',
-    ':year'  => '([0-9]{4})',
-    ':month' => '([0][1-9]|[1][0-2])',
-    ':day'   => '([0][1-9]|[12][0-9]|[3][01])'
-];
+    Array
+    (
+        [:any] => (.*)
+        [:id] => ([0-9]+)
+        [:name] => ([a-zA-Z]+)
+        [:slug] => ([a-z0-9\-]+)
+        [:hexa] => ([A-F0-9]+)
+        [:year] => ([0-9]{4})
+        [:month] => ([0][1-9]|[1][0-2])
+        [:day] => ([0][1-9]|[12][0-9]|[3][01])
+    )
 ```
 
 If you need to update any definition or add a new shortcut, use the `upsertShortcut` method:
@@ -151,7 +155,7 @@ If you need to update any definition or add a new shortcut, use the `upsertShort
     /*
     ** Cleaning the SHORTCUTS variable for example purpose.
     */
-    ROUTER::$_SHORTCUTS = [];
+    Router::clearShortcuts();
 
 
     /*
@@ -320,15 +324,13 @@ By default, this method receives the URI of the route not found as a parameter.
     Router::listen();
 ```
 
-If this method is not defined, it will do nothing.
-
 
 
 ## Something does not work?
 
 - Don't forget to set the correct basepath in the application and in your .htaccess file.
 - Make sure the mod_rewrite is enable in your APACHE settings.
-- Define 404 special route.
+- Define the 404 special route.
 
 
 
